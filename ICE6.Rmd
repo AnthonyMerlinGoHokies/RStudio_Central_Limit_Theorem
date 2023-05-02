@@ -1,0 +1,292 @@
+---
+output: pdf_document
+geometry: margin=1.5cm
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\begin{center}\LARGE{\textbf{ICE \#6: Central Limit Theorem}}\end{center}
+
+**Instructions:** Complete all problems to the best of your abilities! To receive a complete for this assignment, for problems 3 and 4 you must:
+
+1.	write out the probability statement
+2.	write the parameter value
+3.	the answer for problem. 
+4.	draw the density and shaded the specified region. 
+
+*Reminder: In-Class Exercises are graded as Complete or Incomplete. To receive a complete grade, you MUST ANSWER EVERY QUESTION to the best of your ability. For instance, if you do not answer ONE QUESTION, you will receive an incomplete on this assignment. The purpose of this grading scale is to ensure you are attempting every problem and working to learn the material.*
+
+
+# Problem \#1: CLT Simulation
+Using the following code, we will investigate the effect of the sample size ($n$) in the CENTRAL LIMIT THEOREM (CLT) given that the population we sample from is not normal. 
+
+The below code generates our "population" data which is not normally distribution. *Fun fact:* It is a mixture of Poisson Distributions. You DO NOT NEED TO DO ANYTHING WITH THIS CHUCK OF CODE!
+```{r, fig.align='center', fig.width=5}
+set.seed(31) # for reproducibility
+#Generate the Population
+pop <- c(rpois(600,5),rpois(100, 30))
+#Plot the population
+hist(pop, breaks = 100, main = "Population Distribution") 
+box()
+```
+
+The following code simulates if we repeatedly sample `num_of_samples = 5` from our population of interest and calculate the sample mean. The histogram illustrates the sampling distribution (probability distribution) of $\bar{X}$ when $n=5$. 
+```{r, fig.align='center', fig.width=5}
+# Number of times we repeatedly go into population
+num_of_times_smp_from_pop <- 100000 # DONT CHANGE THIS NUMBER
+
+# Number of samples we collect.
+num_of_samples = c(5, 15, 31, 100) # n 
+
+# Vector to store the sample means from each time we go into the population.
+store_samp_mean = matrix(NA, num_of_times_smp_from_pop, 4)
+
+# For Loop:
+for (i in 1:num_of_times_smp_from_pop)
+{
+  for (z in 1:4)
+  {
+  # Collect num_of_sample observations from our population
+  samp = sample(pop,num_of_samples[z])
+  # Calculate the mean of samples
+  sample_mean = mean(samp)
+  # Store the value
+  store_samp_mean[i,z] = sample_mean
+  }
+}
+
+# Create a histogram of the collected sample means
+hist(store_samp_mean[,1], xlab = "X-bar", main = 'Histogram of Sample Means')
+hist(store_samp_mean[,2], add = TRUE)
+hist(store_samp_mean[,3], add = TRUE)
+hist(store_samp_mean[,4], add = TRUE)
+
+box()
+```
+
+
+**YOUR TASK** is to repeat this process with $n = 5$, $n = 15$, $n = 31$, and $n = 100$, then overlay the `store_samp_mean` histogram plots on a single graph to enable you to visualize the effect of increase our sample size ($n$). **Write a couple of sentences about the what you see and what other factors you think could effect the CLT.**
+
+
+Right off the bat the data is a definitely right skewed around 5 - 15 on the X-Bar is where they average off observation. Some factors that I believe could affect the CLT would be either the populatio mean, standard deviation or variance, anyone of these could in theory effect your answer. 
+
+
+---
+
+$~$ \newpage
+
+# Problem \#2: 
+**A certain type of thread is manufactured with a mean tensile strength of 78.3 kg and a standard deviation of 5.6 kg. How is the variance of the sample mean changed when the sample size is increased from 64 to 196?**
+
+
+$~$ \newline \newline \newline \newline \newline \newline 
+$$ \bar{X} \sim N(\mu , \frac{\sigma^2}{n}) $$
+for n = 64 
+$$ \bar{X} \sim N(78.3, \frac{5.6^2}{64})$$
+= .16
+$$ \bar{X} \sim N(\mu , \frac{\sigma^2}{n}) $$
+for n = 196
+$$ \bar{X} \sim N(78.3, \frac{5.6^2}{196})$$
+= .16
+
+
+
+
+# Problem \#3:
+**The average life of bread-making machine is 7 years with a standard deviation of 1 year. Assuming that the lives of these machines follow approximately a normal distribution, find:**
+
+**a. The probability that *A MACHINE* life is less than 7.2.**
+
+
+```{r, fig.align='center', ffig.width=6.5, fig.height= 3.5,  echo = FALSE}
+# CODE TO HELP PLOT THE NORMAL DENSITY 
+mu = 7; sigma = 1 # parameters:
+
+# x-range (4 std away from the mean )
+lower_x_value = mu - 4*sigma 
+upper_x_value = mu + 4*sigma
+
+# create vector from lower_x_value to upper_x_value with step size 1
+x <- seq(lower_x_value,upper_x_value, 0.05)
+# Calculating the normal density with the specified parameters.
+normal_den <- dnorm(x, mean = mu, sd = sigma)
+
+# Plotting the density
+plot(x, normal_den, type = 'l', lwd = 2, ylab = 'Density', xlab = 'X',xaxt ='n')
+axis(1, at = mu + c(-3*sigma, -2*sigma, -1*sigma,0, sigma, 2*sigma, 3*sigma), 
+     labels = mu + c(-3*sigma, -2*sigma, -1*sigma,0, sigma, 2*sigma, 3*sigma))
+abline(v = mu, col = 'blue', lwd = 2, lty = 2 )
+
+#shading
+x_poly <- c(x[1],x[x<=7.2],7.2)
+y_poly <- c(0, normal_den[x<=7.2],0)
+polygon(x_poly,y_poly, col = rgb(1,0,0,0.4), border = NA)
+
+
+
+```
+
+$~$ \newline \newline \newline \newline \newline \newline \newline \newline 
+
+$$ P(X < 7.2) $$
+
+```{r}
+pnorm(7.2, mean = 7, sd = 1)
+```
+
+$~$ \newpage
+
+**b. The probability that the *mean life a random sample of 9 machines* falls between 6.4 and 7.2.**
+
+
+```{r, fig.align='center', ffig.width=6.5, fig.height= 3.5,  echo = FALSE}
+# CODE TO HELP PLOT THE NORMAL DENSITY 
+mu = 7; sigma = 1/sqrt(9) # parameters:
+
+# x-range (4 std away from the mean )
+lower_x_value = mu - 4*sigma 
+upper_x_value = mu + 4*sigma
+
+# create vector from lower_x_value to upper_x_value with step size 1
+x <- seq(lower_x_value,upper_x_value, 0.05)
+# Calculating the normal density with the specified parameters.
+normal_den <- dnorm(x, mean = mu, sd = sigma)
+
+# Plotting the density
+plot(x, normal_den, type = 'l', lwd = 2, ylab = 'Density', xlab = 'X-bar',xaxt ='n')
+axis(1, at = mu + c(-3*sigma, -2*sigma, -1*sigma,0, sigma, 2*sigma, 3*sigma), 
+     labels = round(mu + c(-3*sigma, -2*sigma, -1*sigma,0, sigma, 2*sigma, 3*sigma),2))
+abline(v = mu, col = 'blue', lwd = 2, lty = 2 )
+
+#shading
+x_poly <- c(6.4,x[x >= 6.4 & x <= 7.2],7.2)
+y_poly <- c(0, normal_den[x >= 6.4 & x <= 7.2],0)
+polygon(x_poly,y_poly, col = rgb(1,0,0,0.4), border = NA)
+```
+
+$~$ \newline \newline \newline \newline \newline 
+
+$$\bar{X}_{n=9} \sim N (\mu\bar{X}_{n=9}=7,\sigma\bar{X}_{n=9}=\frac{1}{\sqrt{9}}) $$
+$$ P(6.4 \le \bar{X} \le 7.2)$$
+
+```{r}
+mu = 7; sig = 1/sqrt(9)
+pnorm(7.2,mean = mu, sd = sig) - pnorm(6.4,mean = mu, sd = sig)
+```
+
+**c. The value of $\bar{x}$ where the right of which 15\% of the means computed from a random sample of size 9 would fall.** 
+
+```{r, fig.align='center', ffig.width=6.5, fig.height= 3.5,  echo = FALSE}
+# CODE TO HELP PLOT THE NORMAL DENSITY 
+mu = 7; sigma = 1/sqrt(9) # parameters:
+
+# x-range (4 std away from the mean )
+lower_x_value = mu - 4*sigma 
+upper_x_value = mu + 4*sigma
+
+# create vector from lower_x_value to upper_x_value with step size 1
+x <- seq(lower_x_value,upper_x_value, 0.05)
+# Calculating the normal density with the specified parameters.
+normal_den <- dnorm(x, mean = mu, sd = sigma)
+
+# Plotting the density
+plot(x, normal_den, type = 'l', lwd = 2, ylab = 'Density', xlab = 'X-bar',xaxt ='n')
+axis(1, at = mu + c(-3*sigma, -2*sigma, -1*sigma,0, sigma, 2*sigma, 3*sigma), 
+     labels =  round(mu + c(-3*sigma, -2*sigma, -1*sigma,0, sigma, 2*sigma, 3*sigma), 2))
+abline(v = mu, col = 'blue', lwd = 2, lty = 2 )
+
+#Shading 
+x_poly <- c(7.35,x[x >= 7.35],tail(x, 1))
+y_poly <- c(0, normal_den[x >= 7.35],0)
+polygon(x_poly,y_poly, col = rgb(1,0,0,0.4), border = NA)
+```
+
+$~$ \newline \newline \newline \newline \newline 
+
+$$P(X > x) = 0.15 $$
+
+```{r}
+qnorm(1- 0.15)*(1/sqrt(9)) + 7
+```
+
+$~$ \newpage 
+
+
+# Problem \#4:
+**The amount of time a drive-through bank teller spends on a customer is a random variable with a mean $\mu$=3.2 minutes and a standard deviation $\sigma$=1.6 minutes. If a random sample of 64 customers is observed, find the probability that their *mean time* at the teller’s window is:**
+
+**a. At most 2.7 minutes.**
+
+```{r, fig.align='center', ffig.width=6.5, fig.height= 3.5,  echo = FALSE}
+# CODE TO HELP PLOT THE NORMAL DENSITY 
+mu = 3.2; sigma = 1.6/sqrt(64) # parameters:
+
+# x-range (4 std away from the mean )
+lower_x_value = mu - 4*sigma 
+upper_x_value = mu + 4*sigma
+
+# create vector from lower_x_value to upper_x_value with step size 1
+x <- seq(lower_x_value,upper_x_value, 0.05)
+# Calculating the normal density with the specified parameters.
+normal_den <- dnorm(x, mean = mu, sd = sigma)
+
+# Plotting the density
+plot(x, normal_den, type = 'l', lwd = 2, ylab = 'Density', xlab = 'X-bar',xaxt ='n')
+axis(1, at = mu + c(-3*sigma, -2*sigma, -1*sigma,0, sigma, 2*sigma, 3*sigma), 
+     labels = mu + c(-3*sigma, -2*sigma, -1*sigma,0, sigma, 2*sigma, 3*sigma))
+abline(v = mu, col = 'blue', lwd = 2, lty = 2 )
+
+#shading 
+x_poly <- c(x[1],x[x<=2.7],2.7)
+y_poly <- c(0, normal_den[x<=2.7],0)
+polygon(x_poly,y_poly, col = rgb(1,0,0,0.4), border = NA)
+```
+
+$~$ \newline \newline \newline \newline \newline 
+$$ X \sim f(\mu =3.2, \sigma =1.6)$$
+$$ \bar{X}_{n=64} \sim N (\mu\bar{X}_{n=64}=3.2,\sigma\bar{X}_{n=64}=\frac{1.6}{\sqrt{64}})$$
+$$ P(\bar{X}_{n=64} \le 2.7) $$
+
+```{r}
+mu = 3.2; sig = 1.6/sqrt(64)
+pnorm(2.7, mean = mu, sd =sig)
+```
+
+**b.	More than 3.5 minutes.**
+
+```{r, fig.align='center', ffig.width=6.5, fig.height= 3.5,  echo = FALSE}
+# CODE TO HELP PLOT THE NORMAL DENSITY 
+mu = 3.2; sigma = 1.6/sqrt(64) # parameters:
+
+# x-range (4 std away from the mean )
+lower_x_value = mu - 4*sigma 
+upper_x_value = mu + 4*sigma
+
+# create vector from lower_x_value to upper_x_value with step size 1
+x <- seq(lower_x_value,upper_x_value, 0.05)
+# Calculating the normal density with the specified parameters.
+normal_den <- dnorm(x, mean = mu, sd = sigma)
+
+# Plotting the density
+plot(x, normal_den, type = 'l', lwd = 2, ylab = 'Density', xlab = 'X-bar',xaxt ='n')
+axis(1, at = mu + c(-3*sigma, -2*sigma, -1*sigma,0, sigma, 2*sigma, 3*sigma), 
+     labels = mu + c(-3*sigma, -2*sigma, -1*sigma,0, sigma, 2*sigma, 3*sigma))
+abline(v = mu, col = 'blue', lwd = 2, lty = 2 )
+
+#shading
+x_poly <- c(3.5,x[x >= 3.5],tail(x, 1))
+y_poly <- c(0, normal_den[x >= 3.5],0)
+polygon(x_poly,y_poly, col = rgb(1,0,0,0.4), border = NA)
+```
+
+
+$~$ \newline \newline \newline \newline \newline 
+
+$$ \bar{X}_{n=64} \sim N (\mu\bar{X}_{n=64}=3.2,\sigma\bar{X}_{n=64}=\frac{1.6}{\sqrt{64}}) $$
+$$ P(\bar{X}_n=64 >3.5)$$
+
+```{r}
+1 - pnorm(3.5, mean = mu, sd=sig)
+```
